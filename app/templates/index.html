@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>DatumAPI</title>
+
+    <!-- Bulma CSS via CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" />
+    <link rel="icon" type="image/png" href="/static/favicon.ico" />
+
+    <!-- Prism.js för kodhighlight -->
+    <link rel="stylesheet" href="https://unpkg.com/prismjs@1/themes/prism.min.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="https://unpkg.com/prismjs@1/themes/prism-okaidia.min.css" media="(prefers-color-scheme: dark)">
+    <script defer src="https://unpkg.com/prismjs@1/components/prism-core.min.js"></script>
+    <script defer src="https://unpkg.com/prismjs@1/plugins/autoloader/prism-autoloader.min.js"
+            data-autoloader-path="https://unpkg.com/prismjs@1/components/"></script>
+
+    <!-- Egna justeringar -->
+    <style>
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .card-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        align-items: start;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+      }
+      .codebox { position: relative; }
+      .copy-btn {
+        position: absolute; top: .5rem; right: .5rem;
+        font-size: .875rem; padding: .25rem .5rem;
+        z-index: 2;
+      }
+      .kbd { padding: .1rem .35rem; border: 1px solid #ccc; border-radius: .35rem; font-size: .85em; }
+      .muted { color: #777; }
+      footer { margin-block: 2rem; }
+    </style>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <!-- Sidhuvud -->
+        <header class="mb-6">
+          <h1 class="title">DatumAPI</h1>
+          <p class="subtitle mb-2 mt-4">Öppet API för datum och svenska helgdagar. Enkelt och snabbt för olika applikationer och tjänster.</p>
+        </header>
+
+        <!-- Anrop / användning -->
+        <section class="mb-6">
+          <p>
+            <strong>Endpoint:</strong>
+            <code class="is-family-monospace has-background-light px-2 py-1">GET /api/v1/date/<em>{datum}</em></code>
+          </p>
+          <ul>
+            <li class="mt-2">
+              <strong>Datumformat:</strong>
+              <span class="tag is-light is-family-monospace">YYYY-MM-DD</span>
+              eller
+              <span class="tag is-light is-family-monospace">YYYYMMDD</span>
+            </li>
+          </ul>
+          <div class="card-grid mt-4">
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">Exempel</p>
+              </header>
+              <div class="card-content">
+                <a href="/api/v1/date/2026-12-24"><span class="mono">/api/v1/date/2026-12-24</span></a>
+              </div>
+            </div>
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">Exempel</p>
+              </header>
+              <div class="card-content">
+                <a href="/api/v1/date/20261224"><span class="mono">/api/v1/date/20261224</span></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- cURL-exempel -->
+          <div class="codebox mb-3">
+            <button class="button is-small is-light copy-btn" data-copy="#curlExample">Kopiera</button>
+            <pre><code id="curlExample" class="language-bash">curl -sS "{{ request.url.scheme }}://{{ request.url.netloc }}/api/v1/date/2026-12-24"</code></pre>
+          </div>
+        </section>
+
+        <!-- Info arbetsdagar -->
+        <section class="mb-6">
+          <h2 class="subtitle has-text-weight-bold">Om arbetsdagar och helgdagar</h2>
+          <p>
+            Fältet <span class="mono">is_business_day</span> är <strong>true</strong> om datumet är måndag till fredag och
+            <em>inte</em> är en allmän helgdag enligt vad som definieras i lagen om allmänna helgdagar 
+            (<a href="https://lagen.nu/1989:253" target="_blank" rel="noopener">Lag 1989:253</a>).
+          </p>
+        </section>
+
+        <!-- Länkar till dokumentation -->
+        <section class="mb-6">
+          <h2 class="subtitle has-text-weight-bold">Dokumentation</h2>
+          <div class="card-grid">
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">Swagger UI</p>
+              </header>
+              <div class="card-content">
+                <a class="button is-link is-light" href="/docs">Öppna Swagger</a>
+              </div>
+            </div>
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">ReDoc</p>
+              </header>
+              <div class="card-content">
+                <a class="button is-link is-light" href="/redoc">Öppna ReDoc</a>
+              </div>
+            </div>
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">OpenAPI</p>
+              </header>
+              <div class="card-content">
+                <a class="button is-link is-light" href="/openapi.json">Visa OpenAPI</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Exempelsvar -->
+        <section>
+          <h2 class="subtitle has-text-weight-bold mb-0">Exempel på svar</h2>
+          <div class="codebox">
+            <button class="button is-small is-light copy-btn" data-copy="#jsonExample">Kopiera</button>
+            <pre><code id="jsonExample" class="language-json">{
+  "date": "2026-12-24",
+  "is_today": false,
+  "days_from_today": 187,
+  "is_business_day": false,
+  "weekday_name": "torsdag",
+  "weekday_number": 4,
+  "week_number": 52,
+  "month_name": "december",
+  "days_in_month": 31,
+  "day_of_year": 358,
+  "is_leap": false,
+  "is_holiday": true,
+  "holiday_name": "Julafton",
+  "next_holiday_name": "Juldagen",
+  "days_until_next_holiday": 1
+}</code></pre>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-6">
+          <small>
+            &copy; {{ year }} Mathias Ölund |
+            <a href="https://github.com/Ubiquitous-X/datumapi" target="_blank" rel="noopener">GitHub</a>
+          </small>
+        </footer>
+      </div>
+    </section>
+
+    <!-- JS för kopiera-knappar -->
+    <script>
+      // Kopiera kod från codeblock
+      function copyText(target) {
+        const el = document.querySelector(target);
+        if (!el) return;
+        const text = el.innerText;
+        navigator.clipboard.writeText(text).then(function() {
+          // Visa "Kopierat!" en stund
+          const btn = document.querySelector('[data-copy="' + target + '"]');
+          if (btn) {
+            const old = btn.textContent;
+            btn.textContent = 'Kopierat!';
+            setTimeout(function() {
+              btn.textContent = old;
+            }, 1200);
+          }
+        });
+      }
+
+      // Lyssna på klick på kopiera-knapp
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-copy]');
+        if (!btn) return;
+        copyText(btn.getAttribute('data-copy'));
+      });
+    </script>
+  </body>
+</html>
