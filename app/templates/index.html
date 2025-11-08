@@ -65,19 +65,15 @@
           </ul>
           <div class="card-grid mt-4">
             <div class="card">
-              <header class="card-header">
-                <p class="card-header-title">Exempel</p>
-              </header>
+              <header class="card-header"><p class="card-header-title">Exempel (ISO)</p></header>
               <div class="card-content">
-                <a href="/api/v1/date/2026-12-24"><span class="mono">/api/v1/date/2026-12-24</span></a>
+                <a id="exLinkIso" href="#"><span class="mono" id="exTextIso"></span></a>
               </div>
             </div>
             <div class="card">
-              <header class="card-header">
-                <p class="card-header-title">Exempel</p>
-              </header>
+              <header class="card-header"><p class="card-header-title">Exempel (kompakt)</p></header>
               <div class="card-content">
-                <a href="/api/v1/date/20261224"><span class="mono">/api/v1/date/20261224</span></a>
+                <a id="exLinkCompact" href="#"><span class="mono" id="exTextCompact"></span></a>
               </div>
             </div>
           </div>
@@ -132,26 +128,10 @@
 
         <!-- Exempelsvar -->
         <section>
-          <h2 class="subtitle has-text-weight-bold mb-0">Exempel på svar</h2>
+          <h2 class="subtitle has-text-weight-bold mb-0">Svar för dagens datum</h2>
           <div class="codebox">
             <button class="button is-small is-light copy-btn" data-copy="#jsonExample">Kopiera</button>
-            <pre><code id="jsonExample" class="language-json">{
-  "date": "2026-12-24",
-  "is_today": false,
-  "days_from_today": 187,
-  "is_business_day": false,
-  "weekday_name": "torsdag",
-  "weekday_number": 4,
-  "week_number": 52,
-  "month_name": "december",
-  "days_in_month": 31,
-  "day_of_year": 358,
-  "is_leap": false,
-  "is_holiday": true,
-  "holiday_name": "Julafton",
-  "next_holiday_name": "Juldagen",
-  "days_until_next_holiday": 1
-}</code></pre>
+            <pre><code id="jsonExample" class="language-json"></code></pre>
           </div>
         </section>
 
@@ -190,6 +170,52 @@
         const btn = e.target.closest('[data-copy]');
         if (!btn) return;
         copyText(btn.getAttribute('data-copy'));
+      });
+
+      // Sätt exempel-länkar och exempel-JSON till dagens datum
+      document.addEventListener('DOMContentLoaded', async () => {
+        const today = new Date();
+        const iso = today.toISOString().slice(0, 10);        // YYYY-MM-DD
+        const compact = iso.replaceAll('-', '');             // YYYYMMDD
+        const base = '/api/v1/date/';
+
+        const exLinkIso = document.getElementById('exLinkIso');
+        const exTextIso = document.getElementById('exTextIso');
+        const exLinkCompact = document.getElementById('exLinkCompact');
+        const exTextCompact = document.getElementById('exTextCompact');
+
+        if (exLinkIso && exTextIso) {
+          exLinkIso.href = base + iso;
+          exTextIso.textContent = base + iso;
+        }
+        if (exLinkCompact && exTextCompact) {
+          exLinkCompact.href = base + compact;
+          exTextCompact.textContent = base + compact;
+        }
+
+        // Använd dagens datum i cURL-exemplet
+        const curlEl = document.getElementById('curlExample');
+        if (curlEl) {
+          const url = `${location.origin}${base}${iso}`;
+          curlEl.innerText = `curl -sS "${url}"`;
+          // Highlighta om Prism finns
+          if (window.Prism) Prism.highlightElement(curlEl);
+        }
+
+        // Hämta svar för dagens datum och visa i JSON-exemplet
+        const jsonEl = document.getElementById('jsonExample');
+        if (jsonEl) {
+          try {
+            const res = await fetch(base + iso, { headers: { 'Accept': 'application/json' } });
+            if (res.ok) {
+              const data = await res.json();
+              jsonEl.textContent = JSON.stringify(data, null, 2);
+              if (window.Prism) Prism.highlightElement(jsonEl);
+            }
+          } catch (_) {
+            // Ignorera fel
+          }
+        }
       });
     </script>
   </body>
