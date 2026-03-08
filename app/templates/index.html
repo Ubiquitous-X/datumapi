@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>DatumAPI</title>
+
+    <!-- CSS och favicon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css" />
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/png" href="/static/favicon.ico" />
+
+    <!-- Prism.js för kodhighlight -->
+    <link rel="stylesheet" href="https://unpkg.com/prismjs@1/themes/prism.min.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="https://unpkg.com/prismjs@1/themes/prism-okaidia.min.css" media="(prefers-color-scheme: dark)">
+    <script defer src="https://unpkg.com/prismjs@1/components/prism-core.min.js"></script>
+    <script defer src="https://unpkg.com/prismjs@1/plugins/autoloader/prism-autoloader.min.js"
+            data-autoloader-path="https://unpkg.com/prismjs@1/components/"></script>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <!-- Sidhuvud -->
+        <header class="mb-6">
+          <div class="title-line">
+            <h1 class="title mb-0">DatumAPI</h1>
+            <div class="hero-meta">
+              <span class="tag is-light mono">JSON</span>
+              <span class="tag is-light mono">OpenAPI</span>
+            </div>
+          </div>
+
+          <p class="subtitle mb-2 mt-4 intro-lead">
+            Öppet API för svensk datumlogik. Enkelt att använda för applikationer och tjänster.
+          </p>
+          <div class="intro-points">
+            <p class="intro-point"><span class="intro-dot"></span>Kontrollera arbetsdag, helgdag, veckodag och veckonummer för ett datum.</p>
+            <p class="intro-point"><span class="intro-dot"></span>Hämta nästa arbetsdag samt antal arbetsdagar i valfritt intervall.</p>
+            <p class="intro-point"><span class="intro-dot"></span>Lista helgdagar och icke-arbetsdagar för både år och datumintervall.</p>
+          </div>
+          <div class="intro-facts">
+            <span class="tag is-light mono">Datumformat: YYYY-MM-DD / YYYYMMDD</span>
+            <span class="tag is-light mono">Språk: Svenska</span>
+            <span class="tag is-light mono">Ingen auth</span>
+          </div>
+        </header>
+
+        <!-- Länkar till dokumentation -->
+        <section class="mb-6 section-card">
+          <h2 class="subtitle has-text-weight-bold">Dokumentation</h2>
+          <div class="card-grid docs-grid">
+            <div class="card docs-card">
+              <header class="card-header">
+                <p class="card-header-title">Swagger UI</p>
+              </header>
+              <a class="docs-link" href="/docs">
+                <div class="card-content docs-card-content">
+                  <span class="tag is-link is-light mono docs-pill">Interaktiv dokumentation</span>
+                  <p class="docs-desc">Testa endpoints direkt i webbläsaren och se parametrar/svar i realtid.</p>
+                  <span class="docs-label mono">Öppna /docs</span>
+                </div>
+              </a>
+            </div>
+            <div class="card docs-card">
+              <header class="card-header">
+                <p class="card-header-title">ReDoc</p>
+              </header>
+              <a class="docs-link" href="/redoc">
+                <div class="card-content docs-card-content">
+                  <span class="tag is-link is-light mono docs-pill">Läsbar referens</span>
+                  <p class="docs-desc">Ren, strukturerad vy av alla schemafält och exempel.</p>
+                  <span class="docs-label mono">Öppna /redoc</span>
+                </div>
+              </a>
+            </div>
+            <div class="card docs-card">
+              <header class="card-header">
+                <p class="card-header-title">OpenAPI</p>
+              </header>
+              <a class="docs-link" href="/openapi.json">
+                <div class="card-content docs-card-content">
+                  <span class="tag is-link is-light mono docs-pill">Maskinläsbart schema</span>
+                  <p class="docs-desc">Hämta rå <span class="mono">openapi.json</span> för klientgenerering och integrationer.</p>
+                  <span class="docs-label mono">Öppna /openapi.json</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Anrop / användning -->
+        <section class="mb-6 section-card">
+          <div class="endpoint-line">
+            <strong>Endpoint:</strong>
+            <span class="tag is-info is-light mono">GET</span>
+            <code class="is-family-monospace px-2 py-1 endpoint-code">/api/v1/date/<em>{datum}</em></code>
+          </div>
+          <ul>
+            <li class="mt-2">
+              <strong>Datumformat:</strong>
+              <span class="tag is-light is-family-monospace">YYYY-MM-DD</span>
+              eller
+              <span class="tag is-light is-family-monospace">YYYYMMDD</span>
+            </li>
+          </ul>
+          <div class="card-grid mt-4">
+            <div class="card">
+              <header class="card-header"><p class="card-header-title">Exempel (ISO)</p></header>
+              <div class="card-content">
+                <a id="exLinkIso" href="#"><span class="mono" id="exTextIso"></span></a>
+              </div>
+            </div>
+            <div class="card">
+              <header class="card-header"><p class="card-header-title">Exempel (kompakt)</p></header>
+              <div class="card-content">
+                <a id="exLinkCompact" href="#"><span class="mono" id="exTextCompact"></span></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- cURL-exempel -->
+          <div class="codebox mb-3">
+            <button class="button is-small is-light copy-btn" data-copy="#curlExample">Kopiera</button>
+            <pre><code id="curlExample" class="language-bash">curl -sS "{{ request.url.scheme }}://{{ request.url.netloc }}/api/v1/date/2026-12-24"</code></pre>
+          </div>
+        </section>
+
+        <!-- Anrop: helgdagar inom intervall -->
+        <section class="mb-6 section-card">
+          <div class="endpoint-line">
+            <strong>Endpoint för datumintervall:</strong>
+            <span class="tag is-info is-light mono">GET</span>
+            <code class="is-family-monospace px-2 py-1 endpoint-code">/api/v1/holidays</code>
+          </div>
+
+          <ul class="mt-2">
+            <li>
+              <strong>Query-parametrar:</strong>
+              <span class="tag is-light is-family-monospace">start=YYYY-MM-DD</span>
+              <span class="tag is-light is-family-monospace">end=YYYY-MM-DD</span>
+            </li>
+          </ul>
+
+          <div class="card-grid mt-4">
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">Exempel (ISO)</p>
+              </header>
+              <div class="card-content">
+                <a href="/api/v1/holidays?start=2026-12-20&end=2026-12-31">
+                  <span class="mono">/api/v1/holidays?start=2026-12-20&end=2026-12-31</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title">Exempel (kompakt)</p>
+              </header>
+              <div class="card-content">
+                <a href="/api/v1/holidays?start=20261220&end=20261231">
+                  <span class="mono">/api/v1/holidays?start=20261220&end=20261231</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- cURL-exempel -->
+          <div class="codebox mt-4">
+            <button class="button is-small is-light copy-btn" data-copy="#curlRangeExample">Kopiera</button>
+            <pre><code id="curlRangeExample" class="language-bash">curl -sS "{{ request.url.scheme }}://{{ request.url.netloc }}/api/v1/holidays?start=2026-12-20&end=2026-12-31"</code></pre>
+          </div>
+        </section>
+
+        <!-- Fler endpoint-exempel (kompakt) -->
+        <section class="mb-6 section-card">
+          <h2 class="subtitle has-text-weight-bold">Fler endpoint-exempel</h2>
+          <p class="muted mb-3">Klicka på ett exempel för att anropa endpointen direkt.</p>
+          <div class="table-container">
+            <table class="table is-fullwidth is-hoverable is-narrow compact-table">
+              <thead>
+                <tr>
+                  <th>Endpoint</th>
+                  <th>Exempel</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="mono">GET /api/v1/next-business-day/{datum}</span></td>
+                  <td>
+                    <div class="example-links">
+                      <a id="exNextIso" class="tag is-light mono" href="#">ISO</a>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="mono">GET /api/v1/business-days?start=&end=</span></td>
+                  <td>
+                    <div class="example-links">
+                      <a id="exBusinessDaysIso" class="tag is-light mono" href="#">ISO</a>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="mono">GET /api/v1/non-business-days/{year}</span></td>
+                  <td>
+                    <div class="example-links">
+                      <a id="exNonBusinessYear" class="tag is-light mono" href="#">År</a>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="mono">GET /api/v1/non-business-days?start=&end=</span></td>
+                  <td>
+                    <div class="example-links">
+                      <a id="exNonBusinessRangeIso" class="tag is-light mono" href="#">ISO</a>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="mono">GET /api/v1/holidays/{year}</span></td>
+                  <td>
+                    <div class="example-links">
+                      <a id="exHolidaysYear" class="tag is-light mono" href="#">År</a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Info arbetsdagar -->
+        <section class="mb-6 section-card">
+          <h2 class="subtitle has-text-weight-bold">Om arbetsdagar och helgdagar</h2>
+          <p>
+            Fältet <span class="mono">is_business_day</span> är <strong>true</strong> om datumet är måndag till fredag och
+            <em>inte</em> är en allmän helgdag enligt vad som definieras i lagen om allmänna helgdagar 
+            (<a href="https://lagen.nu/1989:253" target="_blank" rel="noopener">Lag 1989:253</a>).
+          </p>
+        </section>
+
+      <!-- Exempelsvar -->
+      <section class="section-card">
+        <h2 class="subtitle has-text-weight-bold mb-4">Exempelsvar</h2>
+
+        <div class="card-grid">
+          <!-- Enskilt datum -->
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">Svar för dagens datum</p>
+            </header>
+            <div class="card-content codebox">
+              <pre><code id="jsonDateExample" class="language-json"></code></pre>
+            </div>
+          </div>
+
+          <!-- Datumintervall -->
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">Svar för datumintervall 2026-12-19 till 2026-12-26</p>
+            </header>
+            <div class="card-content codebox">
+              <pre><code id="jsonRangeExample" class="language-json"></code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+        <!-- Footer -->
+        <footer class="mt-6">
+          <small>
+            &copy; {{ year }} Mathias Ölund |
+            <span class="muted">v1.0</span> |
+            <a href="https://github.com/Ubiquitous-X/datumapi" target="_blank" rel="noopener">GitHub</a>
+          </small>
+        </footer>
+      </div>
+    </section>
+
+    <!-- JS för kopiera-knappar -->
+    <script>
+      // Kopiera kod från codeblock
+      function copyText(target) {
+        const el = document.querySelector(target);
+        if (!el) return;
+        const text = el.innerText;
+        navigator.clipboard.writeText(text).then(function() {
+          // Visa "Kopierat!" en stund
+          const btn = document.querySelector('[data-copy="' + target + '"]');
+          if (btn) {
+            const old = btn.textContent;
+            btn.textContent = 'Kopierat';
+            setTimeout(function() {
+              btn.textContent = old;
+            }, 1200);
+          }
+        });
+      }
+
+      // Lyssna på klick på kopiera-knapp
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-copy]');
+        if (!btn) return;
+        copyText(btn.getAttribute('data-copy'));
+      });
+
+      // Sätt exempel-länkar och exempel-JSON till dagens datum
+      document.addEventListener('DOMContentLoaded', async () => {
+        const iso = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm' }).format(new Date());
+        const compact = iso.replaceAll('-', '');
+        const base = '/api/v1/date/';
+        const year = iso.slice(0, 4);
+
+        function addDaysIso(isoDate, days) {
+          const [y, m, d] = isoDate.split('-').map(Number);
+          const date = new Date(Date.UTC(y, m - 1, d));
+          date.setUTCDate(date.getUTCDate() + days);
+          return date.toISOString().slice(0, 10);
+        }
+
+        function toCompact(isoDate) {
+          return isoDate.replaceAll('-', '');
+        }
+
+        function setExampleLink(id, path) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.href = path;
+          el.textContent = path;
+        }
+
+        const exLinkIso = document.getElementById('exLinkIso');
+        const exTextIso = document.getElementById('exTextIso');
+        const exLinkCompact = document.getElementById('exLinkCompact');
+        const exTextCompact = document.getElementById('exTextCompact');
+
+        if (exLinkIso && exTextIso) {
+          exLinkIso.href = base + iso;
+          exTextIso.textContent = base + iso;
+        }
+        if (exLinkCompact && exTextCompact) {
+          exLinkCompact.href = base + compact;
+          exTextCompact.textContent = base + compact;
+        }
+
+        const startIso = addDaysIso(iso, -3);
+        const endIso = addDaysIso(iso, 7);
+
+        setExampleLink('exNextIso', `/api/v1/next-business-day/${iso}`);
+        setExampleLink('exBusinessDaysIso', `/api/v1/business-days?start=${startIso}&end=${endIso}`);
+        setExampleLink('exNonBusinessYear', `/api/v1/non-business-days/${year}`);
+        setExampleLink('exNonBusinessRangeIso', `/api/v1/non-business-days?start=${startIso}&end=${endIso}`);
+        setExampleLink('exHolidaysYear', `/api/v1/holidays/${year}`);
+
+        // Använd dagens datum i cURL-exemplet
+        const curlEl = document.getElementById('curlExample');
+        if (curlEl) {
+          const url = `${location.origin}${base}${iso}`;
+          curlEl.innerText = `curl -sS "${url}"`;
+          // Highlighta om Prism finns
+          if (window.Prism) Prism.highlightElement(curlEl);
+        }
+
+        // Hämta svar för dagens datum och visa i JSON-exemplet
+        const jsonEl = document.getElementById('jsonDateExample');
+        if (jsonEl) {
+          try {
+            const res = await fetch(base + iso, { headers: { 'Accept': 'application/json' } });
+            if (res.ok) {
+              const data = await res.json();
+              jsonEl.textContent = JSON.stringify(data, null, 2);
+              if (window.Prism) Prism.highlightElement(jsonEl);
+            }
+          } catch (_) {
+            // Ignorera fel
+          }
+        }
+
+        // Hämta exempelsvar för datumintervall
+        const jsonRangeEl = document.getElementById('jsonRangeExample');
+        if (jsonRangeEl) {
+          try {
+            const res = await fetch(
+              '/api/v1/holidays?start=2026-12-19&end=2026-12-26',
+              { headers: { 'Accept': 'application/json' } }
+            );
+
+            if (res.ok) {
+              const data = await res.json();
+              jsonRangeEl.textContent = JSON.stringify(data, null, 2);
+              if (window.Prism) Prism.highlightElement(jsonRangeEl);
+            }
+          } catch (_) {
+            // Ignorera fel
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
